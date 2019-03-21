@@ -1,0 +1,8 @@
+falcon==1.4.1
+alchemyjsonschema
+SQLAlchemy==1.3.1
+psycopg2==2.7.5
+gunicorn==19.9.0
+emails==0.5.15
+pytest==4.3.1
+requests==2.21.0
