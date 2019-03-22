@@ -30,8 +30,8 @@ class UsersResource:
 
 
 class UserResource:
-    def on_get(self, req, resp, id):
-        user_db = db.SESSION.query(User).get(id)
+    def on_get(self, req, resp, user_id):
+        user_db = db.SESSION.query(User).get(user_id)
         user = user_schema.dump(user_db).data
 
         if user:
@@ -61,12 +61,12 @@ class PostsResource:
         Post.id, Post.title, Post.user_id, Post.tags
     ]
 
-    def on_get(self, req, resp, id):
+    def on_get(self, req, resp, user_id):
         data_offset = req.params.get('offset') or 0
         limit = db.SESSION.query(Post).count() / 10
         filters = parse_filters(cls_model=Post, req_params=req.params)
 
-        posts = db.SESSION.query(User).join(Post).with_entities(*PostsResource.FIELDS_ON_GET).filter(Post.user_id == id)\
+        posts = db.SESSION.query(User).join(Post).with_entities(*PostsResource.FIELDS_ON_GET).filter(Post.user_id == user_id)\
             .filter(*filters).limit(limit).offset(data_offset)
         resp.media = posts_schema.dump(posts).data
 
@@ -81,3 +81,30 @@ class PostsResource:
             raise HTTPConflict('Unique constraint failed')
         resp.media = {'status': 'created'}
         resp.status = falcon.HTTP_201
+
+
+class PostResource:
+    def on_get(self, req, resp, user_id, post_id):
+        post_db = db.SESSION.query(Post).get(post_id)
+        post = post_schema.dump(post_db).data
+
+        if post:
+            resp.status = falcon.HTTP_200
+            resp.media = post_schema.dump(post).data
+
+    def on_put(self, req, resp, user_id, post_id):
+        post_db = db.SESSION.query(Post).get(post_id)
+        if post_db:
+            json = req.media
+            post = post_schema.load(json, session=db.SESSION).data
+            db.SESSION.commit()
+            resp.status = falcon.HTTP_200
+            resp.media = {'status': 'updated'}
+
+    def on_delete(self, req, resp, user_id, post_id):
+        post_db = db.SESSION.query(Post).get(post_id)
+        if post_db:
+            db.SESSION.query(Post).filter(Post.id == post_id).delete()
+            db.SESSION.commit()
+            resp.status = falcon.HTTP_200
+            resp.media = {'status': 'deleted'}
