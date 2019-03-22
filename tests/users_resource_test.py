@@ -36,7 +36,6 @@ def test_pagination_get_users():
     json_data = json.loads(resp.text)
     assert resp.status_code == 200
     assert len(json_data) == limit
-    assert json_data[0]['id'] == offset + 1
 
 
 def test_filters_get_users(user):
