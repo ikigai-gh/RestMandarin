@@ -39,5 +39,5 @@ class SQLAlchemyConfig:
                   port=SQLAlchemyConfig.PORT,
                   database=SQLAlchemyConfig.DATABASE_NAME)
         SQLAlchemyConfig.ENGINE = create_engine(url)
-        Session = sessionmaker(bind=SQLAlchemyConfig.ENGINE, autocommit=True)
+        Session = sessionmaker(bind=SQLAlchemyConfig.ENGINE)
         SQLAlchemyConfig.SESSION = Session()
