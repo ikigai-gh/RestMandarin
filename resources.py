@@ -8,7 +8,7 @@ from schemas import users_schema, user_schema
 from filters import parse_filters
 
 
-class UserResource:
+class UsersResource:
     def on_get(self, req, resp):
         data_offset = req.params.get('offset') or 0
         limit = db.SESSION.query(User).count() / 10
@@ -24,5 +24,33 @@ class UserResource:
             db.SESSION.add(new_user)
             db.SESSION.commit()
         except IntegrityError:
-            raise HTTPConflict('Unique contraint failed')
+            raise HTTPConflict('Unique constraint failed')
+        resp.media = {'status': 'created'}
         resp.status = falcon.HTTP_201
+
+
+class UserResource:
+    def on_get(self, req, resp, id):
+        user_db = db.SESSION.query(User).get(id)
+        user = user_schema.dump(user_db).data
+
+        if user:
+            resp.status = falcon.HTTP_200
+            resp.media = user_schema.dump(user).data
+
+    def on_put(self, req, resp, id):
+        user_db = db.SESSION.query(User).get(id)
+        if user_db:
+            json = req.media
+            user = user_schema.load(json, session=db.SESSION).data
+            db.SESSION.commit()
+            resp.status = falcon.HTTP_200
+            resp.media = {'status': 'updated'}
+
+    def on_delete(self, req, resp, id):
+        user_db = db.SESSION.query(User).get(id)
+        if user_db:
+            db.SESSION.query(User).filter(User.id == id).delete()
+            db.SESSION.commit()
+            resp.status = falcon.HTTP_200
+            resp.media = {'status': 'deleted'}
