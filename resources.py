@@ -72,8 +72,8 @@ class PostsResource:
 
     def on_post(self, req, resp, id):
         json = req.media
+        json['user_id'] = id
         new_post = post_schema.load(json, session=db.SESSION).data
-        new_post.user_id = id
         try:
             db.SESSION.add(new_post)
             db.SESSION.commit()
