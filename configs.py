@@ -24,9 +24,9 @@ class EmailConfig:
 
 class SQLAlchemyConfig:
     DRIVER = 'postgresql+psycopg2'
-    USERNAME = 'sadmonad'
-    PASSWORD = '12345'
-    HOST = 'localhost'
+    USERNAME = 'postgres'
+    PASSWORD = ''
+    HOST = 'psqldb'
     PORT = 5432
     DATABASE_NAME = 'rest_mandarin'
 
